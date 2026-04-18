@@ -1,69 +1,101 @@
-# 阿丽小红书排版 Skill
+<div align="center">
 
-一个开源的 Agent Skill,帮你把一篇文章一键转成小红书图文卡片。
-风格:**New Brutalism**(新粗野主义)—— 黑粗边框、硬阴影、网格底纹、高对比色块。
+# 阿丽小红书排版.skill
 
-> 兼容 Claude Code / Claude.ai / OpenClaw / OpenCode 所有支持 SKILL.md 标准的工具。
+<br>
 
----
+> *"做好一件小事,让别人也能省下半天时间。"*
 
-## 它是什么
+![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8A2BE2?style=flat-square)
+![Style](https://img.shields.io/badge/Style-New%20Brutalism-000000?style=flat-square)
+![Made by](https://img.shields.io/badge/Made%20by-大头阿丽-ff2442?style=flat-square)
 
-这是我自己发小红书用的排版 Skill。每篇文章手动在 Figma 里排版要花大半天,
-每次流程几乎一样。于是把它封装成了 Skill:丢进一篇文章,自动出一整套卡片。
+<br>
 
-**适合的场景:**
-- 写好的长文 / 笔记 / 教程 → 转成图文卡片
-- 想要统一风格、不每次重新调配色
-- 喜欢 New Brutalism 那种"硬核、冲击力、技术范儿"的视觉
+**把一篇文章,一键变成小红书图文卡片。**
 
-**不适合:**
-- 你的风格是极简、治愈、温柔系 —— 这个 Skill 不对味,建议 fork 改色
-- 只需要单张海报 —— 这个 Skill 是给多页卡片设计的(1–19 张)
+采用 **New Brutalism(新粗野主义)** 视觉风格——硬核黑框、强烈阴影、
+高对比色块、网格底纹。严格执行「视觉高压」排版规范,严禁留白。
+
+兼容 Claude Code / Claude.ai / OpenClaw / OpenCode
+
+<br>
+
+[看效果](#效果预览) · [安装](#安装) · [怎么用](#怎么用) · [自定义](#自定义) · [作者](#作者)
+
+</div>
 
 ---
 
 ## 效果预览
 
-> 把你真实用这个 Skill 做出来的 2–3 张卡片截图放在这里。
-> 建议放进 `examples/` 文件夹,然后用 `![](examples/xxx.png)` 引用。
+<div align="center">
 
-```
-examples/
-├── case1-skill-tutorial.png
-├── case2-ai-toolkit.png
-└── case3-productivity.png
-```
+![](examples/Vibe_Coding_Card_1.png)
+
+<details>
+<summary>点开看全部 14 张卡片</summary>
+
+<br>
+
+![](examples/Vibe_Coding_Card_2.png)
+![](examples/Vibe_Coding_Card_3.png)
+![](examples/Vibe_Coding_Card_4.png)
+![](examples/Vibe_Coding_Card_5.png)
+![](examples/Vibe_Coding_Card_6.png)
+![](examples/Vibe_Coding_Card_7.png)
+![](examples/Vibe_Coding_Card_8.png)
+![](examples/Vibe_Coding_Card_9.png)
+![](examples/Vibe_Coding_Card_10.png)
+![](examples/Vibe_Coding_Card_11.png)
+![](examples/Vibe_Coding_Card_12.png)
+![](examples/Vibe_Coding_Card_13.png)
+![](examples/Vibe_Coding_Card_14.png)
+
+</details>
+
+</div>
 
 ---
 
-## 安装方法
+## 它适合谁
+
+**适合:**
+- 写好的长文 / 笔记 / 教程 → 想转成小红书图文卡片
+- 想要统一风格,不每次重新调配色
+- 喜欢「硬核、冲击力、技术范儿」的视觉
+
+**不适合:**
+- 你的风格是极简、治愈、温柔系 → 这个 Skill 不对味,建议 fork 改色
+- 只需要单张海报 → 这个 Skill 是为多页卡片设计的(1–19 张)
+
+---
+
+## 安装
 
 ### Claude Code
 
-把整个文件夹放到:
-
 ```bash
 # 全局(所有项目都能用,推荐)
-~/.claude/skills/xiaohongshu-infographic/
-
-# 或项目级(只当前项目能用)
-.claude/skills/xiaohongshu-infographic/
+git clone https://github.com/chestnut1133-lab/xiaohongshu-infographic.git \
+  ~/.claude/skills/xiaohongshu-infographic
 ```
 
 重启 Claude Code 自动识别,不需要手动激活。
 
 ### Claude.ai 网页版
 
-1. 把整个文件夹打包成 `.zip`
-2. 打开 Settings → Capabilities → Skills
-3. 点上传,选择刚才的 zip
+1. 下载本仓库(右上角 Code → Download ZIP)
+2. 解压后把 `xiaohongshu-infographic` 文件夹**重新压缩**成 zip
+3. 打开 Settings → Capabilities → Skills 上传
 4. 需要 Pro 或以上版本,且开启 Code Execution
 
 ### OpenClaw
 
 ```bash
-~/.openclaw/workspace/skills/xiaohongshu-infographic/
+git clone https://github.com/chestnut1133-lab/xiaohongshu-infographic.git \
+  ~/.openclaw/workspace/skills/xiaohongshu-infographic
 ```
 
 启动新 session 生效。
@@ -72,19 +104,21 @@ examples/
 
 ```bash
 # 全局
-~/.config/opencode/skills/xiaohongshu-infographic/
+git clone https://github.com/chestnut1133-lab/xiaohongshu-infographic.git \
+  ~/.config/opencode/skills/xiaohongshu-infographic
 
 # 或项目级
-.opencode/skills/xiaohongshu-infographic/
+git clone https://github.com/chestnut1133-lab/xiaohongshu-infographic.git \
+  .opencode/skills/xiaohongshu-infographic
 ```
 
-OpenCode 也兼容 `.claude/skills/` 路径,已有 Claude Code 配置的话无需重复安装。
+OpenCode 也兼容 `.claude/skills/` 路径,已装过 Claude Code 版本的话无需重复安装。
 
 ---
 
 ## 怎么用
 
-把文章扔给 AI,加一句触发话即可。不用显式说"用 skill":
+把文章扔给 AI,加一句触发话即可。**不用显式说"用 skill"**:
 
 ```
 下面这篇文章帮我转成小红书图文卡片:
@@ -116,7 +150,7 @@ AI 会自动识别、读取视觉锚点、生成一个完整的 HTML 文件,
 | 页数上限 | `SKILL.md` 第 3 节「页数硬红线」(默认 19 张) |
 
 改完记得同步更新 `SKILL.md` 里的规则描述,
-不然 AI 可能按旧规则生成,跟你新的视觉锚点不一致。
+不然 AI 可能按旧规则生成,跟新的视觉锚点不一致。
 
 ---
 
@@ -129,28 +163,32 @@ xiaohongshu-infographic/
 ├── LICENSE               # MIT
 ├── references/
 │   └── reference.html    # 视觉锚点,AI 执行前必读
-└── examples/             # 真实作品截图(可选,强烈推荐放)
+└── examples/             # 14 张真实作品截图
 ```
-
----
-
-## 贡献
-
-欢迎 fork 出你自己版本,也欢迎提 Issue 或 PR 改进本版本。
-如果你基于这个 Skill 做出了不同风格(比如极简风、插画风),
-告诉我一声,我会在这里列出来。
 
 ---
 
 ## 作者
 
+<div align="center">
+
 **大头阿丽** · Vibe Coding 系列 1/100
 
-- 小红书: [大头阿丽](https://www.xiaohongshu.com/user/profile/653c760900000000060041bc)
-- 微信: `aliaigc`(备注「进群」加 AI 粉丝群,每天聊新工具、玩法、资讯)
+<br>
+
+[![小红书](https://img.shields.io/badge/小红书-大头阿丽-ff2442?style=for-the-badge&logoColor=white)](https://www.xiaohongshu.com/user/profile/653c760900000000060041bc)
+[![微信](https://img.shields.io/badge/微信-aliaigc-07C160?style=for-the-badge&logoColor=white)](#)
+
+<br>
+
+**加微信 `aliaigc` 备注「进群」**
+<br>
+拉你进 AI 粉丝群——每天聊新工具、玩法、资讯,都是真实在用 AI 的人。
+
+<br>
 
 ---
 
-## License
+MIT License · 随便用、随便改、随便商用 · 署名不强制但很感谢 🧡
 
-MIT —— 随便用、随便改、随便商用,署名不强制但很感谢。
+</div>
