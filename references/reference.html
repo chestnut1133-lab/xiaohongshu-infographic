@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>从0做1个自己的skill:把个人技能产品化 - New Brutalism SOTA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&display=swap');
+
+        :root {
+            --brut-blue: #dbeafe;
+            --brut-yellow: #fef3c7;
+            --brut-green: #d1fae5;
+            --brut-red: #fee2e2;
+            --brut-highlight: #fef08a;
+            --brut-border: #000;
+            --brut-shadow: 6px 6px 0px #000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        body {
+            background: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        .export-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            font-weight: 900;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 4px 4px 0px #666;
+        }
+
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .canvas {
+            width: 750px;
+            height: 1000px;
+            border: 14px solid var(--brut-border);
+            background-color: #fff;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 24px 24px;
+            position: relative;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .brut-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .os-badge {
+            background: #000;
+            color: #fff;
+            padding: 6px 14px;
+            font-weight: 900;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .header-title {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1.1;
+            color: #000;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+
+        .card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .section-box {
+            border: 4px solid #000;
+            box-shadow: var(--brut-shadow);
+            padding: 24px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .main-concept {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .narrative-text {
+            font-size: 26px;
+            font-weight: 500;
+            line-height: 1.35;
+            color: #000;
+        }
+
+        .highlight {
+            background: var(--brut-highlight);
+            padding: 0 4px;
+            font-weight: 700;
+        }
+
+        /* Components */
+        .freq-bar {
+            height: 44px;
+            border: 4px solid #000;
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            border-right: 3px solid #000;
+        }
+
+        .step:last-child { border-right: none; }
+        .step.active { background: #f59e0b; }
+        .step.trigger { background: #10b981; color: #fff; }
+
+        .vs-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .vs-box {
+            flex: 1;
+            border: 4px solid #000;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .vs-label {
+            font-weight: 900;
+            font-size: 20px;
+            padding: 4px 8px;
+            border: 3px solid #000;
+            align-self: flex-start;
+        }
+
+        .os-window {
+            border: 4px solid #000;
+            background: #fff;
+            box-shadow: var(--brut-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .os-header {
+            background: #000;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 8px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #000; }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        .os-content {
+            padding: 20px;
+            font-family: monospace;
+            font-size: 20px;
+            line-height: 1.3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 4px solid #000;
+            background: #fff;
+        }
+
+        th {
+            background: #000;
+            color: #fff;
+            padding: 10px;
+            border: 3px solid #000;
+            font-size: 22px;
+        }
+
+        td {
+            padding: 10px;
+            border: 3px solid #000;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .punchline-bar {
+            margin-top: 30px;
+            background: var(--brut-highlight);
+            border: 6px solid #000;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .punchline-text {
+            font-size: 28px;
+            font-weight: 900;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .vibe-tag {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .vibe-label { background: #000; color: #fff; padding: 4px 10px; }
+
+        .progress-path {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .path-node {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .node-circle {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #000;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            flex-shrink: 0;
+            box-shadow: 3px 3px 0px #000;
+        }
+
+        .node-text {
+            font-size: 24px;
+            font-weight: 700;
+            border: 3px solid #000;
+            padding: 8px 15px;
+            background: #fff;
+            flex-grow: 1;
+            box-shadow: 3px 3px 0px #000;
+        }
+    </style>
+</head>
+<body>
+    <button class="export-btn" onclick="exportCards()">打包导出全套卡片 (.ZIP)</button>
+
+    <div class="canvas-container" id="capture-area">
+        <!-- P1: STARTING POINT -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 01/14</div></div>
+            <h1 class="header-title">从0做1个自己的skill:把个人技能产品化</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-blue); flex-grow: 1;">
+                    <h3 class="main-concept">一、找到你的重复劳动</h3>
+                    <p class="narrative-text">起点不是「我想做个 XX Skill」，而是<span class="highlight">「我每天在 XX 这件事上花太多时间了」</span>。</p>
+                    <p class="narrative-text">判断标准只有一个：你有没有在反复跟 AI 说同样的话，或者反复做同样的事。<span class="highlight">重复三次以上，就值得封装成 Skill</span>。</p>
+                    <div class="freq-bar" style="margin-top: 20px;">
+                        <div class="step active">1st</div>
+                        <div class="step active">2nd</div>
+                        <div class="step active">3rd</div>
+                        <div class="step trigger">SIGNAL!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="punchline-bar"><div class="punchline-text">重复就是信号，烦躁就是财富。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">01/14</div></div>
+        </div>
+
+        <!-- P2: THE FIGMA SIGNAL -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 02/14</div></div>
+            <h1 class="header-title">我的真实痛点：小红书图文排版</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-yellow); flex-grow: 1;">
+                    <p class="narrative-text">比如我每次发小红书，要把长文整理成图文卡片，都是<span class="highlight">手动在 Figma 里排版、调配色、调间距</span>，做一篇要花大半天。</p>
+                    <p class="narrative-text">每次的流程都一样——<span class="highlight">这就是信号</span>。当你发现自己像个机器人一样在重复点击时，就该让真正的机器人接手了。</p>
+                    <div class="vs-container" style="margin-top: 25px;">
+                        <div class="vs-box" style="background: var(--brut-red);"><div class="vs-label">MANUAL</div><p style="font-size: 32px; font-weight: 900;">4h/篇</p></div>
+                        <div class="vs-box" style="background: var(--brut-green);"><div class="vs-label">SKILL</div><p style="font-size: 32px; font-weight: 900;">1min/篇</p></div>
+                    </div>
+                </div>
+            </div>
+            <div class="punchline-bar"><div class="punchline-text">别在重复劳动里消耗你的创造力。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">02/14</div></div>
+        </div>
+
+        <!-- P3: SCENARIO MATRIX -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 03/14</div></div>
+            <h1 class="header-title">常见的 Skill 场景矩阵</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-blue); flex-grow: 1;">
+                    <table>
+                        <tr><th>类型</th><th>典型场景</th></tr>
+                        <tr><td>内容创作</td><td>长文改小红书、按风格写周报、公众号转知乎</td></tr>
+                        <tr><td>视觉设计</td><td>小红书排版、固定风格海报、统一 PPT 模板</td></tr>
+                        <tr><td>信息聚合</td><td>AI 日报、竞品动态、行业周报</td></tr>
+                        <tr><td>工作流 SOP</td><td>按模板写 PRD、反馈分类、代码 Review 清单</td></tr>
+                        <tr><td>数据处理</td><td>合同提取、Excel 清洗、PDF 转表格</td></tr>
+                    </table>
+                    <p class="narrative-text" style="margin-top: 15px;">先找到你自己的场景，再往下看。<span class="highlight">后面的步骤都是通用的</span>。</p>
+                </div>
+            </div>
+            <div class="punchline-bar" style="background: var(--brut-green);"><div class="punchline-text">任何 SOP 都可以被硬化为 Skill。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">03/14</div></div>
+        </div>
+
+        <!-- P4: MANUAL RUN -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 04/14</div></div>
+            <h1 class="header-title" style="margin-bottom: 10px;">二、先手动用 AI 跑一遍流程</h1>
+            <div class="card-content" style="gap: 15px;">
+                <div class="section-box" style="background: var(--brut-highlight); padding: 15px 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px; flex-wrap: nowrap;">
+                        <h3 class="main-concept highlight" style="font-size: 20px; font-weight: 900; margin-bottom: 0;">这是最重要的一步</h3>
+                        <span class="highlight" style="font-size: 20px; font-weight: 900;">也是最多人跳过的地方</span>
+                    </div>
+                    <p class="narrative-text" style="font-size: 22px;">比如你是一个 PM，想做一个自动整理用户反馈的 Skill。不要直接跟 AI 说「帮我做一个反馈分类的 Skill」——这样出来的东西，是 AI 对「用户反馈」的通用理解，不是你的。</p>
+                </div>
+                <div class="vs-container" style="flex-grow: 1; gap: 15px;">
+                    <div class="vs-box" style="background: var(--brut-red); padding: 10px;">
+                        <div class="vs-label" style="font-size: 18px;">WRONG WAY</div>
+                        <p class="narrative-text" style="font-size: 20px;">直接下令：<br>「帮我做一个反馈分类的 Skill」</p>
+                        <div style="margin-top: auto; font-weight: 900; color: #b91c1c; font-size: 18px;">结果：AI 通用逻辑，无深度洞察</div>
+                    </div>
+                    <div class="vs-box" style="background: var(--brut-green); padding: 10px;">
+                        <div class="vs-label" style="font-size: 18px;">RIGHT WAY</div>
+                        <p class="narrative-text" style="font-size: 20px;">手动跑一遍：<br><span class="highlight">实测每个环节</span>，记录 AI 和你的偏差。</p>
+                        <div style="margin-top: auto; font-weight: 900; color: #047857; font-size: 18px;">结果：提取出属于你的「灵魂规则」</div>
+                    </div>
+                </div>
+                <div class="section-box" style="background: var(--brut-blue); padding: 15px 20px;">
+                    <p class="narrative-text" style="font-size: 22px;">你要通过实测，找到它和你之间的<span class="highlight">「灵魂偏差」</span>。这些偏差才是 Skill 真正的核心。</p>
+                </div>
+            </div>
+            <div class="punchline-bar" style="margin-top: 15px;"><div class="punchline-text">通用的 AI 没有灵魂，你的规则才有。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">04/14</div></div>
+        </div>
+
+        <!-- P5: FEEDBACK CASE -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 05/14</div></div>
+            <h1 class="header-title">案例：用户反馈分类 Skill</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-blue); flex-grow: 1;">
+                    <p class="narrative-text">你平时处理反馈大概是：<span class="highlight">收集 → 分类 → 提炼真实诉求 → 按优先级排序</span>。</p>
+                    <p class="narrative-text">每一个环节，都让 AI 单独跑一次，把它的结果和你平时做的对比：</p>
+                    <div class="progress-path" style="margin-top: 15px;">
+                        <div class="path-node"><div class="node-circle">1</div><div class="node-text">收集：AI 漏了什么？</div></div>
+                        <div class="path-node"><div class="node-circle">2</div><div class="node-text">分类：维度和你差在哪？</div></div>
+                        <div class="path-node"><div class="node-circle">3</div><div class="node-text">提炼：是在复述还是读出了原话背后的意思？</div></div>
+                        <div class="path-node"><div class="node-circle">4</div><div class="node-text">排序：它知道付费用户优先级高吗？</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="punchline-bar"><div class="punchline-text">测出 AI 的「翻车点」，就是你的起点。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">05/14</div></div>
+        </div>
+
+        <!-- P6: CORE VALUE -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 06/14</div></div>
+            <h1 class="header-title">Skill 真正的价值所在</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-green); flex-grow: 1;">
+                    <p class="narrative-text">这些差异点里，藏着你对这件事的判断 and 洞察：</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin: 10px 0;">
+                        <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 4px 4px 0px #000;">
+                            <div style="font-weight: 900; font-size: 20px; color: #2563eb; margin-bottom: 5px;">[维度洞察]</div>
+                            <p style="font-weight: 700; font-size: 22px;">你按「立刻修/排期/先观察」分档，而不仅仅是分类。</p>
+                        </div>
+                        <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 4px 4px 0px #000;">
+                            <div style="font-weight: 900; font-size: 20px; color: #d97706; margin-bottom: 5px;">[深层解构]</div>
+                            <p style="font-weight: 700; font-size: 22px;">你能从「加个按钮」读出<span class="highlight">「我不信任你们的数据」</span>。</p>
+                        </div>
+                        <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 4px 4px 0px #000;">
+                            <div style="font-weight: 900; font-size: 20px; color: #059669; margin-bottom: 5px;">[权重规则]</div>
+                            <p style="font-weight: 700; font-size: 22px;">你知道付费用户的反馈要先处理，这是你的商业直觉。</p>
+                        </div>
+                    </div>
+
+                    <p class="narrative-text"><span class="highlight">这些，才是你的 Skill 真正的价值</span>。其他 AI 本来就会的东西，不用写。</p>
+                </div>
+            </div>
+            <div class="punchline-bar" style="background: var(--brut-yellow);"><div class="punchline-text">你是导演，AI 是按剧本演戏的演员。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">06/14</div></div>
+        </div>
+
+        <!-- P7: SKILL.MD INTRO -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 07/14</div></div>
+            <h1 class="header-title" style="font-size: 56px;">三、让 AI 帮你写 SKILL.md</h1>
+            <div class="card-content" style="gap: 15px;">
+                <div class="section-box" style="background: var(--brut-blue); padding: 15px 20px;">
+                    <p class="narrative-text" style="font-size: 22px;">找到差异点之后，就该动手写 SKILL.md 了。</p>
+                    <p class="narrative-text" style="font-size: 22px;">简单说，SKILL.md 就是一份 <span class="highlight">Markdown 说明书</span>，AI 读它就知道按你的规矩做事。</p>
+                </div>
+                
+                <div class="os-window" style="flex-grow: 1;">
+                    <div class="os-header"><span style="color: #fff; font-size: 14px; margin-left: 10px;">YOUR_SKILL_FOLDER/</span></div>
+                    <div class="os-content" style="font-size: 18px; padding: 15px; font-family: monospace;">
+                        ├── <span style="font-weight: 900;">SKILL.md</span> &nbsp;&nbsp;&nbsp;&nbsp;← 主文件,让 AI 帮你写<br>
+                        ├── <span style="font-weight: 900;">references/</span> ← 配套参考,你自己放<br>
+                        └── <span style="font-weight: 900;">scripts/</span> &nbsp;&nbsp;&nbsp;← 小脚本,你自己放(可选)
+                    </div>
+                </div>
+
+                <div class="section-box" style="background: var(--brut-highlight); padding: 15px 20px;">
+                    <p class="narrative-text" style="font-size: 22px;">主文件 SKILL.md 交给 AI 帮你写就行。把第二步观察到的差异点甩给它，用这段提示词：见下页</p>
+                </div>
+            </div>
+            <div class="punchline-bar" style="margin-top: 15px;"><div class="punchline-text">SKILL.md 是 AI 时代的「说明书标准」。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">07/14</div></div>
+        </div>
+
+        <!-- P8: THE PROMPT -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 08/14</div></div>
+            <h1 class="header-title" style="font-size: 56px; margin-bottom: 10px;">万能提示词模板</h1>
+            <div class="card-content" style="gap: 12px;">
+                <!-- 提示词主体 (完整不省略) -->
+                <div class="os-window" style="background: #f8fafc; border: 4px solid #000; flex-grow: 1;">
+                    <div class="os-header"><span style="color: #fff; font-size: 14px; margin-left: 10px;">COPY_PROMPT.txt</span></div>
+                    <div class="os-content" style="font-size: 16px; padding: 15px; line-height: 1.25; font-family: monospace;">
+                        我要做一个 Skill,请帮我写一份完整的 SKILL.md。<br><br>
+                        【场景】<br>
+                        [一句话:我要解决什么问题]<br><br>
+                        【我的流程】<br>
+                        [你平时的步骤]<br><br>
+                        【AI 和我做得不一样的地方】<br>
+                        [第二步发现的那些差异点]<br><br>
+                        【我最在意的 3-5 条规则】<br>
+                        [越具体越好,有禁止项就写禁止项]<br><br>
+                        要求:<br>
+                        1. 生成一份可以直接使用的 SKILL.md<br>
+                        2. description 要 pushy 一点,明确说 WHAT(做什么)和 WHEN(什么时候用),并说清即使用户没明说也要触发<br>
+                        3. 规则必须具体,不出现"要高级""要美观"这种抽象话<br>
+                        4. 易错点这块特别重要,请你作为 AI 主动补充你会容易犯的错——你比我更清楚自己在哪儿会翻车<br>
+                        5. 如果我的场景适合配合示例文件,在 SKILL.md 里注明"执行前读取 references/ 下的示例"这类指令。示例文件本身我自己准备。
+                    </div>
+                </div>
+            </div>
+            <div class="punchline-bar" style="margin-top: 15px; padding: 12px;"><div class="punchline-text" style="font-size: 28px;">高质量的输入换来高质量的 Skill。</div></div>
+            <div class="vibe-tag" style="margin-top: 10px;"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">08/14</div></div>
+        </div>
+
+        <!-- P9: EXTRA FILES -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 09/14</div></div>
+            <h1 class="header-title" style="font-size: 56px;">配套文件怎么办？</h1>
+            <div class="card-content" style="gap: 15px;">
+                <div class="section-box" style="background: var(--brut-blue); padding: 15px 20px;">
+                    <p class="narrative-text" style="font-size: 22px;">这两个文件夹是 <span class="highlight">AI 不写、你自己放</span>——因为它们装的是你的东西，不是 AI 的东西。</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px; flex-grow: 1;">
+                    <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 4px 4px 0px #000;">
+                        <div style="font-weight: 900; font-size: 20px; color: #2563eb; margin-bottom: 5px;">[references/ 完美示例]</div>
+                        <p style="font-weight: 700; font-size: 18px;">放你做过的最满意的成品。AI 执行时会先读示例，照着你的风格做，比文字规则准得多。</p>
+                    </div>
+                    <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 4px 4px 0px #000;">
+                        <div style="font-weight: 900; font-size: 20px; color: #059669; margin-bottom: 5px;">[scripts/ 现有脚本]</div>
+                        <p style="font-weight: 700; font-size: 18px;">放你已经在用的小脚本（导出 zip、处理图片等）。AI 需要时直接调用，不用每次临场写。</p>
+                    </div>
+                </div>
+
+                <div class="section-box" style="background: var(--brut-highlight); padding: 15px 20px;">
+                    <p class="narrative-text" style="font-size: 20px;">你要做的只是把文件放进对应文件夹。AI 会在 SKILL.md 里自动带上读取指令。</p>
+                </div>
+            </div>
+            <div class="punchline-bar" style="margin-top: 15px;"><div class="punchline-text">文字说不清的时候，就给它看范本。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">09/14</div></div>
+        </div>
+
+        <!-- P10: ITERATION MERGED -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 10/14</div></div>
+            <h1 class="header-title">四、跑起来，改起来</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-yellow); flex-grow: 1; padding: 15px;">
+                    <p class="narrative-text" style="font-size: 22px;">第一次出的效果大概率不满意。以我的<span class="highlight">「小红书排版 Skill」</span>迭代过程为例：</p>
+                    
+                    <div class="progress-path" style="margin-top: 10px; gap: 15px;">
+                        <div class="path-node">
+                            <div class="node-circle" style="background: var(--brut-red); width: 45px; height: 45px;">V1</div>
+                            <div class="node-text" style="padding: 10px; font-size: 20px;">
+                                <div style="font-weight: 900; color: #b91c1c;">色彩语义乱掉</div>
+                                <p style="font-size: 17px; line-height: 1.2;">AI 随机用色。我加了蓝(起点)、黄(过程)、绿(成功)的语义分工。</p>
+                            </div>
+                        </div>
+                        <div class="path-node">
+                            <div class="node-circle" style="background: var(--brut-blue); width: 45px; height: 45px;">V2</div>
+                            <div class="node-text" style="padding: 10px; font-size: 20px;">
+                                <div style="font-weight: 900; color: #2563eb;">AI 感太重</div>
+                                <p style="font-size: 17px; line-height: 1.2;">个人表达被洗掉。我加了「严格保留个人化表达」的强约束。</p>
+                            </div>
+                        </div>
+                        <div class="path-node">
+                            <div class="node-circle" style="background: var(--brut-green); width: 45px; height: 45px;">V3</div>
+                            <div class="node-text" style="padding: 10px; font-size: 20px;">
+                                <div style="font-weight: 900; color: #059669;">像静态文档</div>
+                                <p style="font-size: 17px; line-height: 1.2;">没结构感。我要求每页必带可视化组件，才有信息图的味道。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="narrative-text" style="margin-top: 10px; font-size: 22px; text-align: center;">一般改 <span class="highlight">2-3 轮就稳了</span>，它会永远记住你的标准。</p>
+                </div>
+            </div>
+            <div class="punchline-bar"><div class="punchline-text">好工具是长出来的，不是想出来的。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">10/14</div></div>
+        </div>
+
+        <!-- P11: FIVE PITFALLS -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 11/14</div></div>
+            <h1 class="header-title">五、容易踩的坑</h1>
+            <div class="card-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex-grow: 1;">
+                    <!-- Pitfall 1 -->
+                    <div style="border: 4px solid #000; background: var(--brut-red); padding: 15px; box-shadow: 6px 6px 0px #000; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
+                        <div style="font-weight: 900; font-size: 22px; line-height: 1.1;">Description 写模糊了</div>
+                        <div style="border-top: 2px solid #000; padding-top: 8px; font-size: 15px; font-weight: 700; line-height: 1.3;">
+                            前面说过，再强调一次——这是最高频的坑。写得太泛触发不到，写得太窄覆盖不全。把你最常说的词都列进去，宁可多写，不要少写。读一遍：「用户会用这些词吗？」
+                        </div>
+                    </div>
+                    <!-- Pitfall 2 -->
+                    <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 6px 6px 0px #000; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
+                        <div style="font-weight: 900; font-size: 22px; line-height: 1.1;">第一版就想做完美</div>
+                        <div style="border-top: 2px solid #000; padding-top: 8px; font-size: 15px; font-weight: 700; line-height: 1.3;">
+                            做不到，也没必要。第一版能跑通、方向对就够了。在 SKILL.md 上改了两小时还没跑一次，那是在写作文，不是做 Skill。
+                        </div>
+                    </div>
+                    <!-- Pitfall 3 -->
+                    <div style="border: 4px solid #000; background: #fff; padding: 15px; box-shadow: 6px 6px 0px #000; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
+                        <div style="font-weight: 900; font-size: 22px; line-height: 1.1;">没跑过就开始写规则</div>
+                        <div style="border-top: 2px solid #000; padding-top: 8px; font-size: 15px; font-weight: 700; line-height: 1.3;">
+                            没让 AI 先手动跑一遍，光靠脑子想规则——大概率漏掉 AI 真正翻车的地方，写一堆 AI 本来就会的废话。一定要先跑一次，再动笔。
+                        </div>
+                    </div>
+                    <!-- Pitfall 4 -->
+                    <div style="border: 4px solid #000; background: var(--brut-red); padding: 15px; box-shadow: 6px 6px 0px #000; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
+                        <div style="font-weight: 900; font-size: 22px; line-height: 1.1;">Skill 越做越大</div>
+                        <div style="border-top: 2px solid #000; padding-top: 8px; font-size: 15px; font-weight: 700; line-height: 1.3;">
+                            开始想做一件事，后来不断加别的，最后做成一个什么都管但什么都不精的东西。一个 Skill 只解决一个问题，其他的拆开单独做。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="punchline-bar" style="background: #000; color: #fff;"><div class="punchline-text" style="color: #fff;">先跑通方向，再雕琢细节。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">11/14</div></div>
+        </div>
+
+        <!-- P12: REAL SKILL.MD -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 12/14</div></div>
+            <h1 class="header-title">附：我真实在用的 SKILL.md</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-highlight); padding: 15px 20px;">
+                    <p class="narrative-text" style="font-size: 24px; font-weight: 900;">
+                        <span style="background: #000; color: #fff; padding: 2px 8px; margin-right: 8px;">PROOF</span>
+                        这篇图文就是我用这个 Skill 自动生成的。
+                    </p>
+                </div>
+                <div class="os-window" style="flex-grow: 1;">
+                    <div class="os-header"><span style="color: #fff; font-size: 14px; margin-left: 10px;">SKILL_XHS_CARD_DESIGN</span></div>
+                    <div class="os-content" style="font-size: 16px;">
+                        ---<br>
+                        name: xhs-card-design<br>
+                        description: 用于生成小红书图文卡片...<br>
+                        ---<br>
+                        # 阿丽小红书排版 Skill<br>
+                        ## 风格定义 (New Brutalism)<br>
+                        ## 核心示范 (视觉锚点 HTML)<br>
+                        ## 核心执行流程<br>
+                        1. 内容结构化 (5-6个卡片/100%叙事)<br>
+                        2. 视觉组件化 (每页必带组件)<br>
+                        3. 自动化导出 (html2canvas/JSZip)
+                    </div>
+                </div>
+            </div>
+            <div class="punchline-bar"><div class="punchline-text">结构清晰，AI 执行才有力。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">12/14</div></div>
+        </div>
+
+        <!-- P13: PRODUCTIZATION -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">agent skill 13/14</div></div>
+            <h1 class="header-title">分享出去（可选）</h1>
+            <div class="card-content" style="gap: 20px;">
+                <div class="section-box" style="background: var(--brut-blue); padding: 25px;">
+                    <p class="narrative-text" style="font-size: 26px; font-weight: 700;">
+                        觉得好用，可以发出来让别人也用。<span class="highlight">GitHub</span> 上传一个仓库，把你的 SKILL.md 放进去。或者直接在<span class="highlight">小红书</span>发一篇，把文件内容贴出来，感兴趣的人自己复制。
+                    </p>
+                </div>
+                
+                <div class="section-box" style="background: #fff; border-style: dashed; padding: 25px;">
+                    <p class="narrative-text" style="font-size: 26px;">
+                        我觉得这件事有意思的地方在于：你花时间打磨的那套标准，本来只是你自己用的私人规范。发出来之后，<span class="highlight">它变成了别人的起点</span>。
+                    </p>
+                </div>
+
+                <div class="section-box" style="background: var(--brut-green); padding: 20px;">
+                    <p class="narrative-text" style="font-size: 24px; font-weight: 700;">
+                        当然这一步完全可选。自己用得顺手，就已经是这件事最大的价值了。
+                    </p>
+                </div>
+            </div>
+            <div class="punchline-bar" style="background: var(--brut-yellow);"><div class="punchline-text">你的经验，值得被产品化。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">13/14</div></div>
+        </div>
+
+        <!-- P14: FINAL MESSAGE -->
+        <div class="canvas">
+            <div class="brut-header"><div class="os-badge">FINISH</div></div>
+            <h1 class="header-title">现在，去做你自己的 Skill 吧</h1>
+            <div class="card-content">
+                <div class="section-box" style="background: var(--brut-highlight); flex-grow: 1; justify-content: center; align-items: center; text-align: center;">
+                    <h3 style="font-size: 48px; font-weight: 900; margin-bottom: 25px;">恭喜通关！</h3>
+                    <p class="narrative-text">这是我的第 01/100 个 Skill 分享。<br><span class="highlight">如果你也想做自己的 AI 助理</span>，评论区见！</p>
+                    <div style="margin-top: 40px; font-size: 80px;">🎨🚀💎</div>
+                </div>
+            </div>
+            <div class="punchline-bar"><div class="punchline-text">关注阿丽，让 AI 真正为你所用。</div></div>
+            <div class="vibe-tag"><div class="vibe-label">大头阿丽 · Vibe Coding</div><div class="vibe-page">14/14</div></div>
+        </div>
+    </div>
+
+    <script>
+        async function exportCards() {
+            const zip = new JSZip();
+            const canvases = document.querySelectorAll('.canvas');
+            const btn = document.querySelector('.export-btn');
+            
+            btn.innerText = '正在生成中...';
+            btn.disabled = true;
+
+            for (let i = 0; i < canvases.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const canvas = await html2canvas(canvases[i], {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: null
+                });
+                const imgData = canvas.toDataURL('image/png').split(',')[1];
+                zip.file(`Vibe_Coding_Card_${i + 1}.png`, imgData, {base64: true});
+            }
+
+            const content = await zip.generateAsync({type: 'blob'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = '从零做Skill全套卡片.zip';
+            link.click();
+
+            btn.innerText = '打包导出全套卡片 (.ZIP)';
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
